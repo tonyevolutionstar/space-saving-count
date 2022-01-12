@@ -3,8 +3,7 @@ __author__ = "António Ramos"
 """
     References:
         - http://python.w3.pt/?p=234 -> portuguese stop words
-        - https://www.geeksforgeeks.org/removing-stop-words-nltk-python/?fbclid=IwAR2zHEfPOxfInCRJ5QEdXc56worsVdNhdn7YB680jp3pU9Zf-La07FEhQac
-        
+        - https://www.geeksforgeeks.org/removing-stop-words-nltk-python/?fbclid=IwAR2zHEfPOxfInCRJ5QEdXc56worsVdNhdn7YB680jp3pU9Zf-La07FEhQac    
 """
 import time 
 import nltk # install pip install nltk

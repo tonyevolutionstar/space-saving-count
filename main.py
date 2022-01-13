@@ -75,16 +75,43 @@ def exact_counts(words):
     return exact_count, round(stop, 3)
 
 
-def space_saving_count(words):
-    pass
+def space_saving_count(words, k):
+    ssc_count = {}
+    start = time.time()
+    for word in words:
+        if word not in ssc_count:
+            if len(word) + 1 > k: 
+                min_c = min(ssc_count, key=ssc_count.get)
+                ssc_count[word] = ssc_count.pop(min_c) + 1
+            else:
+                ssc_count[word] = 1
+        else:
+            ssc_count[word] += 1
+    stop = time.time() - start
+    return ssc_count, round(stop, 3)
 
+def create_results_file():
+    file = open("results.csv", "w")
+    file.write("Word, Exact_Count, Space_Saving_Count\n")
+    file.close()
+
+def write_results(words, exact_count, time_exc_count, ssc_count, time_ssc_count):
+    file = open("results.csv", "a")
+    for word in words:
+        if word in exact_count and word in ssc_count:
+            file.write(f"{word}, {exact_count[word]}, {time_exc_count}, {ssc_count[word]}, {time_ssc_count}\n")
+    file.close()
 
 if __name__ == "__main__":
+    create_results_file()
     book, stopWords = available_books()
     words, exec_time_reading = read_file(book, stopWords)
     exact_count, exec_time_exact_count = exact_counts(words)
     print(f"Time of reading and processing the book {book} is {exec_time_reading} seconds\n")
-
-    
+    print(f"Time of Exact counter is {exec_time_exact_count} ")
+    k = 5
+    ssc_count, exec_time_ssc = space_saving_count(words, k)
+    print(f"Time of Space Saving Count {exec_time_ssc}")
+    write_results(words, exact_count, exec_time_exact_count, ssc_count, exec_time_ssc)
    
 

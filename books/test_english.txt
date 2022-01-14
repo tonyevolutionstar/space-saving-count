@@ -1,4 +1,0 @@
-this is a test for english removing . , ... 
-special chars
-CONVERT LOW
-english english

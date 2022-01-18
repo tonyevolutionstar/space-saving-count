@@ -146,6 +146,17 @@ def write_image(exact_count, ssc_count):
     plt.savefig("results_time")
     plt.close(fig)
 
+def relative_error(exact_count, ssc_count):
+    """ https://www.greelane.com/pt/ci%c3%aancia-tecnologia-matem%c3%a1tica/ci%c3%aancia/how-to-calculate-percent-error-609584/ """
+    rel_error = {}
+    rel_error_tmp = {}
+    for k in ssc_count:
+        if k not in rel_error:
+            for word in ssc_count[k]:
+                if word not in rel_error_tmp:
+                    rel_error_tmp[word] = round(abs(exact_count[word]-ssc_count[k][word])/exact_count[word], 3)
+            rel_error[k] = rel_error_tmp
+    return rel_error          
 
 
 if __name__ == "__main__":
@@ -160,6 +171,7 @@ if __name__ == "__main__":
     write_results(exact_count, exec_time_exact_count)
     list_k = [10, 25, 50, 70]
     times_ssc = {}
+    ssc_count_dic = {}
     for k in list_k:
         if k > 5:
             ssc_count, exec_time_ssc = space_saving_count(words, k)
@@ -167,6 +179,9 @@ if __name__ == "__main__":
             write_results_ssc_count(ssc_count, exec_time_ssc, k)
             if k not in times_ssc:
                 times_ssc[k] = exec_time_ssc
+            if k not in ssc_count_dic:
+                ssc_count_dic[k] = ssc_count
     write_time_analysis(exec_time_exact_count, times_ssc)
     write_image(exec_time_exact_count, times_ssc)
-   
+    rel_error = relative_error(exact_count, ssc_count_dic)
+    print(rel_error)

@@ -5,17 +5,22 @@ __author__ = "António Ramos"
         - http://python.w3.pt/?p=234 -> portuguese stop words
         - https://www.geeksforgeeks.org/removing-stop-words-nltk-python/?fbclid=IwAR2zHEfPOxfInCRJ5QEdXc56worsVdNhdn7YB680jp3pU9Zf-La07FEhQac    
 """
-from cProfile import label
+from ctypes.wintypes import PINT
+import more_itertools
 import numpy as np
 import matplotlib.pyplot as plt
 import time 
 import nltk # install pip install nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+
 results_exact_file = "results_exact.csv"
 results_ssc_file = "results_ssc_count.csv"
 results_time = "results_time.csv"
+results_count = "results_count_word.csv"
+results_rel_error = "results_rel_error.csv"
 
+# choose book to process
 def available_books():
     bible = "books/bible.txt"
     maias = "books/os_maias-eps_vida_romantica.txt"
@@ -40,11 +45,10 @@ def available_books():
             return maias, stop_words_pt
         if choice == 2:
             return quijote, stop_words_sp
-
     except ValueError:
         print("Please input integer only...")  
 
-
+# read and process file
 def read_file(book, stop_words):
     words = []
     file = open(book, "r", encoding='utf-8')
@@ -74,7 +78,7 @@ def exact_counts(words):
     stop = time.time() - start 
     return exact_count, round(stop, 3)
 
-
+# calculate space saving count according to pdf's
 def space_saving_count(words, k):
     ssc_count = {}
     start = time.time()
@@ -90,9 +94,8 @@ def space_saving_count(words, k):
     stop = time.time() - start
     return ssc_count, round(stop, 3)
 
-
+# creating files with time results
 def create_results_file():
-    """ creating files with time results"""
     file = open(results_exact_file, "w")
     file.write("Word, Count, Time_exc\n")
     file.close()
@@ -102,34 +105,35 @@ def create_results_file():
     file_time = open(results_time, "w")
     file_time.write("Exact_Count, SSC, K\n")
     file_time.close()
+    file_count = open(results_count, "w")
+    file_count.write("Word, Exact_Count, SSC_Count, k\n")
+    file_count.close()
 
 
+# write results of exact count and the time of execution in new file
 def write_results(exact_count, time_exc_count):
-    """ write results of exact count in new file """
     file = open(results_exact_file, "a")
     exact_count = dict(sorted(exact_count.items(),key=lambda x:x[0],reverse = False))
     for word in exact_count:
         file.write(f"{word}, {exact_count[word]}, {time_exc_count}\n")
     file.close()
 
-
+# write results of ssc_count and k and the time of execution in new file
 def write_results_ssc_count(ssc_count, time_ssc_count, k):
-    """ write results of ssc_count and k in new file """
     file = open(results_ssc_file, "a")
     ssc_count = dict(sorted(ssc_count.items(),key=lambda x:x[0],reverse = False))
     for word in ssc_count:
         file.write(f"{word}, {ssc_count[word]}, {time_ssc_count}, {k}\n")
     file.close()
 
-
+# write time results
 def write_time_analysis(exact_count, ssc_count):
-    """ write time results """
     file = open(results_time, "a")
     for k in ssc_count:
         file.write(f"{exact_count},{ssc_count[k]}, {k}\n")
     file.close()
 
-
+# saves a graph of time of executation of the counts
 def write_image(exact_count, ssc_count):
     names = ['exact_count']
     values = [exact_count]
@@ -146,6 +150,7 @@ def write_image(exact_count, ssc_count):
     plt.savefig("results_time")
     plt.close(fig)
 
+# calculate the relative error of ssc_count
 def relative_error(exact_count, ssc_count):
     """ https://www.greelane.com/pt/ci%c3%aancia-tecnologia-matem%c3%a1tica/ci%c3%aancia/how-to-calculate-percent-error-609584/ """
     rel_error = {}
@@ -155,9 +160,43 @@ def relative_error(exact_count, ssc_count):
             for word in ssc_count[k]:
                 if word not in rel_error_tmp:
                     rel_error_tmp[word] = round(abs(exact_count[word]-ssc_count[k][word])/exact_count[word], 3)
-            rel_error[k] = rel_error_tmp
+            rel_error[k] = dict(sorted(rel_error_tmp.items(), key = lambda x:x[0]))
     return rel_error          
 
+# sort the counts and select top 5 to write on file
+def sort_words_counts(exact_count, ssc_count):
+    exact_count_sort = dict(sorted(exact_count.items(), key = lambda x:x[1], reverse=True))
+    # exact_count_sort = list(dict(sorted(exact_count.items(), key = lambda x:x[0])))[:5]
+    ssc_count_sort = {}
+
+    for k in ssc_count:
+        if k not in ssc_count_sort:
+            ssc_count_sort[k] = dict(sorted(ssc_count[k].items(), key = lambda x:x[1], reverse=True))
+    
+    file_count = open(results_count, "a")
+    ex = more_itertools.take(5, exact_count_sort.items())
+    
+    file_count.write(f"{ex}\n")
+
+    for k in ssc_count_sort:
+        ssc = more_itertools.take(5, ssc_count_sort[k].items())
+        file_count.write(f"{k}: {ssc}\n")
+    file_count.close()
+
+# write information about rel erro
+def write_rel_error(rel_error):
+    file_rel = open(results_rel_error, "w")
+    file_rel.write("word")
+    for k in rel_error:
+        file_rel.write(f",ssc_{k}_rel_error")
+    file_rel.write("\n")
+
+    for k in rel_error:
+        for word in rel_error[k]:
+            file_rel.write(f"{word}, {k}, {rel_error[k][word]}\n")
+        
+    file_rel.close()
+   
 
 if __name__ == "__main__":
     create_results_file()
@@ -184,4 +223,5 @@ if __name__ == "__main__":
     write_time_analysis(exec_time_exact_count, times_ssc)
     write_image(exec_time_exact_count, times_ssc)
     rel_error = relative_error(exact_count, ssc_count_dic)
-    print(rel_error)
+    write_rel_error(rel_error)
+    sort_words_counts(exact_count, ssc_count_dic)

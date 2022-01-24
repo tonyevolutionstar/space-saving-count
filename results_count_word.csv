@@ -1,0 +1,6 @@
+Word, Exact_Count, SSC_Count, k
+[('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]
+10: [('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]
+25: [('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]
+50: [('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]
+70: [('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]

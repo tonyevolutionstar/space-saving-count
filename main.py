@@ -84,7 +84,7 @@ def space_saving_count(words, k):
     start = time.time()
     for word in words:
         if word not in ssc_count:
-            if len(word) + 1 > k: 
+            if len(ssc_count) + 1 > k: 
                 min_c = min(ssc_count, key=ssc_count.get)
                 ssc_count[word] = ssc_count.pop(min_c) + 1
             else:

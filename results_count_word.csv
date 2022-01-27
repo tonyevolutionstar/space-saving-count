@@ -1,6 +1,0 @@
-Word, Exact_Count, SSC_Count, k
-[('don', 2714), ('si', 1959), ('quijote', 1719), ('sancho', 1667), ('tan', 1235)]
-10: [('van', 17952), ('tropezando', 17952), ('caer', 17952), ('duda', 17952), ('alguna', 17952)]
-25: [('sido', 7181), ('hombres', 7181), ('fingidas', 7181), ('disparatadas', 7181), ('historias', 7181)]
-50: [('don', 3738), ('quijote', 3599), ('sido', 3588), ('alguna', 3588), ('vale', 3588)]
-70: [('don', 2876), ('quijote', 2619), ('sancho', 2577), ('sido', 2560), ('muerte', 2559)]

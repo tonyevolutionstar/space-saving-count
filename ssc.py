@@ -5,7 +5,7 @@ __author__ = "António Ramos"
         - http://python.w3.pt/?p=234 -> portuguese stop words
         - https://www.geeksforgeeks.org/removing-stop-words-nltk-python/?fbclid=IwAR2zHEfPOxfInCRJ5QEdXc56worsVdNhdn7YB680jp3pU9Zf-La07FEhQac    
 """
-from ctypes.wintypes import PINT
+
 import more_itertools
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,11 +14,12 @@ import nltk # install pip install nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
-results_exact_file = "results_exact.csv"
-results_ssc_file = "results_ssc_count.csv"
-results_time = "results_time.csv"
-results_count = "results_count_word.csv"
-results_rel_error = "results_rel_error.csv"
+
+results_exact_file = "results/results_exact.csv"
+results_ssc_file = "results/results_ssc_count.csv"
+results_time = "results/results_time.csv"
+results_count = "results/results_count_word.csv"
+results_rel_error = "results/results_rel_error.csv"
 
 # choose book to process
 def available_books():
@@ -147,7 +148,7 @@ def write_image(exact_count, ssc_count):
     plt.xlabel("Counter")
     plt.ylabel("Time")
     plt.title("Results time")
-    plt.savefig("results_time")
+    plt.savefig("results/results_time")
     plt.close(fig)
 
 # calculate the relative error of ssc_count
@@ -159,7 +160,7 @@ def relative_error(exact_count, ssc_count):
         if k not in rel_error:
             for word in ssc_count[k]:
                 if word not in rel_error_tmp:
-                    rel_error_tmp[word] = round(abs(exact_count[word]-ssc_count[k][word])/exact_count[word], 3)
+                    rel_error_tmp[word] = round(abs(exact_count[word]-ssc_count[k][word])/exact_count[word], 3) * 100
             rel_error[k] = dict(sorted(rel_error_tmp.items(), key = lambda x:x[0]))
     return rel_error          
 
@@ -186,10 +187,7 @@ def sort_words_counts(exact_count, ssc_count):
 # write information about rel erro
 def write_rel_error(rel_error):
     file_rel = open(results_rel_error, "w")
-    file_rel.write("word")
-    for k in rel_error:
-        file_rel.write(f",ssc_{k}_rel_error")
-    file_rel.write("\n")
+    file_rel.write("word,k,percentage_rel_error\n")
 
     for k in rel_error:
         for word in rel_error[k]:
@@ -197,6 +195,49 @@ def write_rel_error(rel_error):
         
     file_rel.close()
    
+def image_rel_error(rel_error):
+    dir = "results_rel_error/"
+    k_10_words = [word for k in rel_error for word in rel_error[k] if k == 10]
+    k_10_values = [rel_error[k][word] for k in rel_error for word in rel_error[k] if k == 10]
+    k_25_words = [word for k in rel_error for word in rel_error[k] if k == 25]
+    k_25_values = [rel_error[k][word] for k in rel_error for word in rel_error[k] if k == 25]
+    k_50_words = [word for k in rel_error for word in rel_error[k] if k == 50]
+    k_50_values = [rel_error[k][word] for k in rel_error for word in rel_error[k] if k == 50]
+    k_70_words = [word for k in rel_error for word in rel_error[k] if k == 70]
+    k_70_values = [rel_error[k][word] for k in rel_error for word in rel_error[k] if k == 70]
+
+    fig = plt.figure(figsize = (20, 5))
+    plt.bar(k_10_words, k_10_values, color = "green")
+    plt.ylabel("Percentage of Relative Error")
+    plt.xlabel("Word")
+    plt.title("K=10")
+    plt.savefig(f"{dir}results_rel_error_10")
+    plt.close(fig)
+
+    fig_25 = plt.figure(figsize=(20,5))
+    plt.bar(k_25_words, k_25_values, color = "blue")
+    plt.ylabel("Percentage of Relative Error")
+    plt.xlabel("Word")
+    plt.title("K=25")
+    plt.savefig(f"{dir}results_rel_error_25")
+    plt.close(fig_25)
+
+    fig_50 = plt.figure(figsize=(40,5))
+    plt.bar(k_50_words, k_50_values, color = "red")
+    plt.ylabel("Percentage of Relative Error")
+    plt.xlabel("Word")
+    plt.title("K=50")
+    plt.savefig(f"{dir}results_rel_error_50")
+    plt.close(fig_50)
+
+    fig_70 = plt.figure(figsize=(50,5))
+    plt.bar(k_70_words, k_70_values, color = "yellow")
+    plt.ylabel("Percentage of Relative Error")
+    plt.xlabel("Word")
+    plt.title("K=70")
+    plt.savefig(f"{dir}results_rel_error_70")
+    plt.close(fig_70)
+
 
 if __name__ == "__main__":
     create_results_file()
@@ -220,8 +261,10 @@ if __name__ == "__main__":
                 times_ssc[k] = exec_time_ssc
             if k not in ssc_count_dic:
                 ssc_count_dic[k] = ssc_count
+    # tests
     write_time_analysis(exec_time_exact_count, times_ssc)
     write_image(exec_time_exact_count, times_ssc)
     rel_error = relative_error(exact_count, ssc_count_dic)
     write_rel_error(rel_error)
+    image_rel_error(rel_error)
     sort_words_counts(exact_count, ssc_count_dic)
